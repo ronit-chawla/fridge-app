@@ -10,7 +10,8 @@ import {
 	Button,
 	KeyboardAvoidingView,
 	Alert,
-	ActivityIndicator
+	ActivityIndicator,
+	ScrollView
 } from 'react-native';
 import {
 	HeaderButtons,
@@ -134,14 +135,17 @@ const NewFridge = () => {
 	);
 	return (
 		<KeyboardAvoidingView
-			behavior="height"
+			style={{
+				backgroundColor : Colors.primary,
+				flex            : 1
+			}}
 			keyboardVerticalOffset={50}
-			style={{ flex: 1 }}
+			behavior="height"
 		>
 			<View style={styles.screen}>
 				<Card style={styles.container}>
 					<Input
-						label="Title"
+						label="Fridge Name"
 						errorText="Title is required."
 						onInputChange={inputChangeHandler}
 						autoCapitalize="none"

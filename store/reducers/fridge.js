@@ -16,7 +16,14 @@ export default (state = initialState, action) => {
 	switch (action.type) {
 		case SET_FRIDGE:
 			const items = action.fridge.items.map(
-				i => new Item(i.id, i.title, i.quantity)
+				i =>
+					new Item(
+						i.id,
+						i.title,
+						i.quantity,
+						i.type,
+						new Date(i.expiryDate)
+					)
 			);
 			return {
 				id    : action.fridge.id,
@@ -31,7 +38,9 @@ export default (state = initialState, action) => {
 					new Item(
 						action.item.id,
 						action.item.title,
-						action.item.quantity
+						action.item.quantity,
+						action.item.type,
+						new Date(action.item.expiryDate)
 					)
 				]
 			};
@@ -43,7 +52,9 @@ export default (state = initialState, action) => {
 				return new Item(
 					item.id,
 					action.item.title,
-					action.item.quantity
+					action.item.quantity,
+					item.type,
+					item.expiryDate
 				);
 			});
 			return {

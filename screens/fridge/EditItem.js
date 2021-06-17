@@ -10,9 +10,12 @@ import {
 	View,
 	Alert,
 	KeyboardAvoidingView,
-	ActivityIndicator
+	ActivityIndicator,
+	Text
 } from 'react-native';
 import { useDispatch } from 'react-redux';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 import Input from '../../components/Input';
 import Card from '../../components/Card';
 import Colors from '../../constants/Colors';
@@ -68,20 +71,26 @@ const EditItem = ({ navigation, route }) => {
 		setError
 	] = useState(null);
 	const [
+		showDatePicker,
+		setShowDatePicker
+	] = useState(false);
+	const [
 		formState,
 		dispatchFormState
 	] = useReducer(formReducer, {
 		inputValues     : {
 			title    : title ? title : '',
-			quantity : title ? quantity : 0
+			quantity : title ? quantity : 0,
+			date     : new Date()
 		},
 		inputValidities : {
 			title    : !!title,
-			quantity : !!title
+			quantity : !!title,
+			date     : true
 		},
 		formIsValid     : !!title
 	});
-	const submitHandler = useCallback(
+	const editItemHandler = useCallback(
 		async () => {
 			if (!formState.formIsValid) {
 				Alert.alert(
@@ -94,28 +103,15 @@ const EditItem = ({ navigation, route }) => {
 				return;
 			}
 			try {
-				if (id) {
-					await dispatch(
-						updateItem(
-							id,
-							formState.inputValues.title,
-							parseInt(
-								formState.inputValues
-									.quantity
-							)
+				await dispatch(
+					updateItem(
+						id,
+						formState.inputValues.title,
+						parseInt(
+							formState.inputValues.quantity
 						)
-					);
-				} else {
-					await dispatch(
-						addItem(
-							formState.inputValues.title,
-							parseInt(
-								formState.inputValues
-									.quantity
-							)
-						)
-					);
-				}
+					)
+				);
 			} catch (err) {
 				setError(err.message);
 				setIsLoading(false);
@@ -129,6 +125,38 @@ const EditItem = ({ navigation, route }) => {
 			formState
 		]
 	);
+	const addItemHandler = async type => {
+		try {
+			if (showDatePicker) {
+				await dispatch(
+					addItem(
+						formState.inputValues.title,
+						parseInt(
+							formState.inputValues.quantity
+						),
+						type,
+						formState.inputValues.date
+					)
+				);
+			} else {
+				await dispatch(
+					addItem(
+						formState.inputValues.title,
+						parseInt(
+							formState.inputValues.quantity
+						),
+						type
+					)
+				);
+			}
+		} catch (err) {
+			setError(err.message);
+			setIsLoading(false);
+			return;
+		}
+		setIsLoading(false);
+		navigation.navigate('FridgeOverview');
+	};
 	const inputChangeHandler = useCallback(
 		(input, value, isValid) => {
 			dispatchFormState({
@@ -141,6 +169,31 @@ const EditItem = ({ navigation, route }) => {
 		[
 			dispatchFormState
 		]
+	);
+	const submitBtn = title ? (
+		<Button
+			title={`Edit ${title}`}
+			color={Colors.secondaryHighlight}
+			onPress={editItemHandler}
+		/>
+	) : (
+		<View
+			style={{
+				flexDirection  : 'row',
+				justifyContent : 'space-between'
+			}}
+		>
+			<Button
+				title="Add Item Fridge"
+				color={Colors.primaryHighlight}
+				onPress={() => addItemHandler('fridge')}
+			/>
+			<Button
+				title="Add Item Freezer"
+				color={Colors.secondaryHighlight}
+				onPress={() => addItemHandler('freezer')}
+			/>
+		</View>
 	);
 	useEffect(() => {
 		navigation.setOptions({
@@ -165,12 +218,15 @@ const EditItem = ({ navigation, route }) => {
 		<KeyboardAvoidingView
 			behavior="height"
 			keyboardVerticalOffset={50}
-			style={{ flex: 1 }}
+			style={{
+				flex            : 1,
+				backgroundColor : Colors.primary
+			}}
 		>
 			<View style={styles.screen}>
 				<Card style={styles.container}>
 					<Input
-						label="Title"
+						label="Title*"
 						errorText="Title is required."
 						onInputChange={inputChangeHandler}
 						autoCapitalize="none"
@@ -180,7 +236,7 @@ const EditItem = ({ navigation, route }) => {
 						initiallyValid={!!title}
 					/>
 					<Input
-						label="Quantity"
+						label="Quantity*"
 						errorText="Quantity is required."
 						onInputChange={inputChangeHandler}
 						id="quantity"
@@ -192,36 +248,64 @@ const EditItem = ({ navigation, route }) => {
 						}
 						initiallyValid={!!title}
 					/>
-					{isLoading ? (
-						<ActivityIndicator
-							color={
-								id ? (
-									Colors.secondaryHighlight
-								) : (
-									Colors.primaryHighlight
-								)
-							}
-							size="small"
-						/>
-					) : (
+					{!title &&
+					showDatePicker && (
+						<Text
+							style={{
+								color    :
+									Colors.secondaryLabel,
+								fontSize : 18
+							}}
+						>
+							Expiry Date
+						</Text>
+					)}
+					{!title &&
+					!showDatePicker && (
 						<Button
-							title={
-								id ? (
-									`Edit ${title}`
-								) : (
-									'Add Item'
-								)
-							}
-							color={
-								id ? (
-									Colors.secondaryHighlight
-								) : (
-									Colors.primaryHighlight
-								)
-							}
-							onPress={submitHandler}
+							title="Choose expiry date"
+							onPress={() =>
+								setShowDatePicker(true)}
 						/>
 					)}
+					{!title &&
+					showDatePicker && (
+						<DateTimePicker
+							style={{
+								height : 75
+							}}
+							value={
+								formState.inputValues.date
+							}
+							mode="date"
+							display="calendar"
+							onChange={(e, selectedDate) =>
+								inputChangeHandler(
+									'date',
+									selectedDate ||
+										formState
+											.inputValues
+											.date,
+									true
+								)}
+						/>
+					)}
+					<View style={styles.btn}>
+						{isLoading ? (
+							<ActivityIndicator
+								color={
+									id ? (
+										Colors.secondaryHighlight
+									) : (
+										Colors.primaryHighlight
+									)
+								}
+								size="small"
+							/>
+						) : (
+							submitBtn
+						)}
+					</View>
 				</Card>
 			</View>
 		</KeyboardAvoidingView>
@@ -242,5 +326,8 @@ const styles = StyleSheet.create({
 		padding         : 30,
 		width           : '80%',
 		borderRadius    : 15
+	},
+	btn       : {
+		marginVertical : 25
 	}
 });

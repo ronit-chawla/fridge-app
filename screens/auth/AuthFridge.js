@@ -9,7 +9,9 @@ import {
 	View,
 	Button,
 	Alert,
-	ActivityIndicator
+	ActivityIndicator,
+	KeyboardAvoidingView,
+	ScrollView
 } from 'react-native';
 import {
 	HeaderButtons,
@@ -133,42 +135,64 @@ const AuthFridge = () => {
 		]
 	);
 	return (
-		<View style={styles.screen}>
-			<Card style={styles.container}>
-				<Input
-					label="Title"
-					errorText="Title is required."
-					onInputChange={inputChangeHandler}
-					autoCapitalize="none"
-					id="title"
-					required
-				/>
-				<Input
-					label="Password"
-					errorText="Password must be atleast 6 characters."
-					onInputChange={inputChangeHandler}
-					secureTextEntry
-					autoCapitalize="none"
-					id="password"
-					required
-					minLength={6}
-				/>
-				<View style={styles.btn}>
-					{isLoading ? (
-						<ActivityIndicator
-							color={Colors.primaryHighlight}
-							size="small"
+		<KeyboardAvoidingView
+			style={{
+				backgroundColor : Colors.primary,
+				flex            : 1
+			}}
+			keyboardVerticalOffset={50}
+			behavior="height"
+		>
+			<ScrollView
+				contentContainerStyle={{ flexGrow: 1 }}
+				keyboardShouldPersistTaps="handled"
+			>
+				<View style={styles.screen}>
+					<Card style={styles.container}>
+						<Input
+							label="Fridge Name"
+							errorText="Title is required."
+							onInputChange={
+								inputChangeHandler
+							}
+							autoCapitalize="none"
+							id="title"
+							required
 						/>
-					) : (
-						<Button
-							title="Login to Fridge"
-							color={Colors.primaryHighlight}
-							onPress={submitHandler}
+						<Input
+							label="Password"
+							errorText="Password must be atleast 6 characters."
+							onInputChange={
+								inputChangeHandler
+							}
+							secureTextEntry
+							autoCapitalize="none"
+							id="password"
+							required
+							minLength={6}
 						/>
-					)}
+						<View style={styles.btn}>
+							{isLoading ? (
+								<ActivityIndicator
+									color={
+										Colors.primaryHighlight
+									}
+									size="small"
+								/>
+							) : (
+								<Button
+									title="Login to Fridge"
+									color={
+										Colors.primaryHighlight
+									}
+									onPress={submitHandler}
+								/>
+							)}
+						</View>
+					</Card>
 				</View>
-			</Card>
-		</View>
+			</ScrollView>
+		</KeyboardAvoidingView>
 	);
 };
 

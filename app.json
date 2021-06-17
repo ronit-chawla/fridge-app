@@ -3,6 +3,7 @@
     "name": "fridge",
     "slug": "fridge",
     "version": "1.0.0",
+    "privacy":"public",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -17,9 +18,13 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier":"com.notanapp.fridge",
+      "buildNumber":"1.0.0",
       "supportsTablet": true
     },
     "android": {
+      "package":"com.notanapp.fridge",
+      "versionCode":1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

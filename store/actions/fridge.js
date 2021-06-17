@@ -49,11 +49,40 @@ export const authFridge = (
 	dispatch(setFridge(data.fridge));
 };
 
-export const addItem = (title, quantity) => async (
+export const reloadFridge = () => async (
 	dispatch,
 	getState
 ) => {
+	const { id } = getState().fridge;
+	const res = await fetch(
+		`${env.API_BASE_URL}/fridge/${id}`
+	);
+	const data = await res.json();
+	if (!res.ok) {
+		throw new Error(data.message);
+	}
+	dispatch(setFridge(data.fridge));
+};
+
+export const addItem = (
+	title,
+	quantity,
+	type,
+	date
+) => async (dispatch, getState) => {
 	const id = getState().fridge.id;
+	const body = date
+		? {
+				title,
+				quantity,
+				type,
+				expiryDate : date.toISOString()
+			}
+		: {
+				title,
+				quantity,
+				type
+			};
 	const res = await fetch(
 		`${env.API_BASE_URL}/fridge/${id}`,
 		{
@@ -61,7 +90,7 @@ export const addItem = (title, quantity) => async (
 			headers : {
 				'Content-type' : 'application/json'
 			},
-			body    : JSON.stringify({ title, quantity })
+			body    : JSON.stringify(body)
 		}
 	);
 	const data = await res.json();
